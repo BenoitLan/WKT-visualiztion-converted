@@ -1,29 +1,32 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import url("https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap");
-
-:root {
-  font-family: "Indie Flower", cursive;
-  box-sizing: border-box;
-}
-
-html,
-body {
+html, body {
   margin: 0;
-  padding: 0;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-button {
-  border: 1px solid white;
-  padding: 0.2rem 0.4rem;
-  transition: all 0.3s ease;
-  margin-left: auto;
+#root {
+  min-height: 100% !important;
 }
 
-button:hover {
-  background-color: rgb(30, 30, 30);
-  color: white;
+#app {
+  min-height: 100% !important;
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  width: 100%;
+  height: 400px;
+  background-color: #eeeeee;
+}
+
+textarea {
+  resize: none !important;
+  font-size: 0.7em !important;
+}
+
+code {
+  font-size: 0.7em !important;
+  color: #0f5132 !important;
 }

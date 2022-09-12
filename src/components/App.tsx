@@ -13,6 +13,8 @@ import examples from "./examples.js";
 import WKT from "ol/format/WKT.js";
 import GeoJSON from "ol/format/GeoJSON.js";
 import crsList from "./crs.js";
+import { QueryEngine } from '@comunica/query-sparql'
+
 
 // interface IAppProps {
 //   weburl?: UrlString
@@ -142,16 +144,16 @@ function App() {
 
   async function handleWtkURIValidate(){
     // const QueryEngine = require('@comunica/query-sparql').QueryEngine; // you can find this back in node_modules
-    // const myEngine = neew QueryEngine();
-    // const quadStream = await myEngine.queryQuads(`
-    // CONSTRUCT WHERE {
-    //   ?s ?p ?o
-    // } LIMIT 100000`, {
-    // sources: ['https://private-api.gipod.beta-vlaanderen.be/api/v1/ldes/mobility-hindrances?generatedAtTime=2020-12-28T09:36:09.72Z'],
-    // });
-    //   quadStream.on('data', (quad) => {
-    //   console.log(quad.object.value);
-    // });
+    const myEngine = new QueryEngine();
+    const quadStream = await myEngine.queryQuads(`
+    CONSTRUCT WHERE {
+      ?s ?p ?o
+    } LIMIT 100000`, {
+    sources: ['https://private-api.gipod.beta-vlaanderen.be/api/v1/ldes/mobility-hindrances?generatedAtTime=2020-12-28T09:36:09.72Z'],
+    });
+      quadStream.on('data', (quad) => {
+      console.log(quad.object.value);
+    });
   }
 
   function HandleChange(selectedOption){
