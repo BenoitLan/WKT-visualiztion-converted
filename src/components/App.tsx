@@ -8,10 +8,11 @@ import Select from 'react-select';
 import { MapContainer } from 'react-leaflet/MapContainer';
 import { TileLayer } from 'react-leaflet/TileLayer';
 import FullscreenControl from "./FullscreenControl.js";
-// import { MapContainer, TileLayer } from "react-leaflet";
-
-
-
+import epsgList from "./epsg.js";
+import examples from "./examples.js";
+import WKT from "ol/format/WKT.js";
+import GeoJSON from "ol/format/GeoJSON.js";
+import crsList from "./crs.js";
 
 // interface IAppProps {
 //   weburl?: UrlString
@@ -44,11 +45,14 @@ function App() {
     json: null,
     wktURI: ""
   });
+
+  
+
   const [valid, setValid] = useState(null);
   const [exampleIndex, setExampleIndex] = useState(0);
 
   const groupRef = useRef();
-  // const epsgCache = useRef(epsgList);
+  const epsgCache = useRef(epsgList);
 
   const displayMap = useMemo(
     () => (
@@ -69,37 +73,37 @@ function App() {
   )
 
   async function fetchProj(inputEpsg) {
-    // let proj;
-    // if (inputEpsg in epsgCache.current) {
-    //   proj = epsgCache.current[inputEpsg];
-    // } else {
-    //   const res = await fetch("https://epsg.io/" + inputEpsg + ".proj4");
-    //   const text = await res.text();
-    //   if (text.includes("+proj")) {
-    //     proj = text;
-    //     epsgCache.current[inputEpsg] = proj;
-    //   }
-    // }
-    // return proj;
+    let proj;
+    if (inputEpsg in epsgCache.current) {
+      proj = epsgCache.current[inputEpsg];
+    } else {
+      const res = await fetch("https://epsg.io/" + inputEpsg + ".proj4");
+      const text = await res.text();
+      if (text.includes("+proj")) {
+        proj = text;
+        epsgCache.current[inputEpsg] = proj;
+      }
+    }
+    return proj;
   }
   
   function handleEpsgClear() {
-    // validateAndUpdateSpatial({
-    //   ...spatial,
-    //   epsg: DEFAULT_EPSG,
-    // });
-    // setEpsg(DEFAULT_EPSG);
+    validateAndUpdateSpatial({
+      ...spatial,
+      epsg: DEFAULT_EPSG,
+    });
+    setEpsg(DEFAULT_EPSG);
   }
 
   function handleWtkURIClear() {
-    // setWktURI(DEFAULT_WKT_URI);
+    setWktURI(DEFAULT_WKT_URI);
   }
 
   function handleWktClear() {
-    // validateAndUpdateSpatial({
-    //   ...spatial,
-    //   wkt: ""
-    // });
+    validateAndUpdateSpatial({
+      ...spatial,
+      wkt: ""
+    });
   }
 
   async function handleEpsgValidate() {
@@ -156,123 +160,124 @@ function App() {
 
 
   function handleWktChange(e) {
-    // validateAndUpdateSpatial({
-    //   ...spatial,
-    //   wkt: e.target.value
-    // });
+    validateAndUpdateSpatial({
+      ...spatial,
+      wkt: e.target.value
+    });
   }
 
   function handleEpsgChange(e) {
-    // setEpsg(e.target.value);
+    setEpsg(e.target.value);
   }
 
   function handleWktURIChange(e){
-    // setWktURI(e.target.value);
+    setWktURI(e.target.value);
   }
 
   function updateEpsg() {
-    // validateAndUpdateSpatial({
-    //   ...spatial,
-    //   epsg: epsg
-    // });
+    validateAndUpdateSpatial({
+      ...spatial,
+      epsg: epsg
+    });
   }
 
   function updateWKTURI(){
-    // validateAndUpdateSpatial({
-    //   ...spatial,
-    //   wktURI: wktURI
-    // });
+    validateAndUpdateSpatial({
+      ...spatial,
+      wktURI: wktURI
+    });
   }
 
   function handleLoadExample() {
-    // const example = examples[exampleIndex];
-    // console.log(example);
-    // validateAndUpdateSpatial({
-    //   wkt: example[0],
-    //   epsg: example[1],
-    //   wktURI:example[2]
-    // });
-    // setEpsg(example[1]);
-    // setWktURI(example[2]);
-    // const newIndex = exampleIndex < examples.length - 1 ? exampleIndex + 1 : 0;
-    // setExampleIndex(newIndex);
+    const example = examples[exampleIndex];
+    console.log(example);
+    validateAndUpdateSpatial({
+      wkt: example[0],
+      epsg: example[1],
+      wktURI:example[2]
+    });
+    setEpsg(example[1]);
+    setWktURI(example[2]);
+    const newIndex = exampleIndex < examples.length - 1 ? exampleIndex + 1 : 0;
+    setExampleIndex(newIndex);
   }
 
   function parseWkt(wkt) {
-    // const wktFormat = new WKT();
-    // const feature = wktFormat.readFeature(wkt);
-    // const geojsonFormat = new GeoJSON({});
-    // const json = geojsonFormat.writeFeatureObject(feature);
-    // return json;
+    const wktFormat = new WKT();
+    const feature = wktFormat.readFeature(wkt);
+    const geojsonFormat = new GeoJSON({});
+    const json = geojsonFormat.writeFeatureObject(feature);
+    return json;
   }
 
   async function validateAndUpdateSpatial(input) {
 
-    // setError(null);
-    // input = {
-    //   ...input,
-    //   proj: null,
-    //   json: null
-    // }
+    setError(null);
+    input = {
+      ...input,
+      proj: null,
+      json: null
+    }
 
-    // // split input
+    // split input
 
-    // const [, crsPart, wktPart] = input.wkt.match(/(<.*>)?\s*(.*)/);
+    const [, crsPart, wktPart] = input.wkt.match(/(<.*>)?\s*(.*)/);
     
-    // // parse EPSG if in WKT
+    // parse EPSG if in WKT
 
-    // let parsedEpsg;
+    let parsedEpsg;
     
-    // if (crsPart) {
-    //   const cleanCrsPart = crsPart.trim().replace(/^<|>$/g, "").replace("https://", "http://");
-    //   const matches = crsPart.match(/opengis.net\/def\/crs\/EPSG\/[0-9.]+\/([0-9]+)(?:>)/);
-    //   if (cleanCrsPart in crsList) {
-    //     parsedEpsg = crsList[cleanCrsPart];
-    //   } else if (matches) {
-    //     parsedEpsg = matches[1];
-    //   } else {
-    //     setError("CRS URI not supported (only OpenGIS EPSG for now)");
-    //   }
-    // }
+    if (crsPart) {
+      const cleanCrsPart = crsPart.trim().replace(/^<|>$/g, "").replace("https://", "http://");
+      const matches = crsPart.match(/opengis.net\/def\/crs\/EPSG\/[0-9.]+\/([0-9]+)(?:>)/);
+      if (cleanCrsPart in crsList) {
+        parsedEpsg = crsList[cleanCrsPart];
+      } else if (matches) {
+        parsedEpsg = matches[1];
+      } else {
+        // setError("CRS URI not supported (only OpenGIS EPSG for now)");
+      }
+    }
     
-    // if (parsedEpsg) {
-    //   input = {
-    //     ...input,
-    //     epsg: parsedEpsg
-    //   };
-    //   setEpsg(parsedEpsg);
-    // }
+    if (parsedEpsg) {
+      input = {
+        ...input,
+        epsg: parsedEpsg
+      };
+      setEpsg(parsedEpsg);
+    }
 
-    // // get proj
+    // get proj
 
-    // input.proj = await fetchProj(input.epsg);
-    // if (!input.proj) {
-    //   setError("EPSG not found");
-    // }
+    input.proj = await fetchProj(input.epsg);
+    if (!input.proj) {
+      // setError("EPSG not found");
+    }
 
-    // // parse WKT
+    // parse WKT
     
-    // if (input.proj && wktPart !== "") {
-    //   try {
-    //     input.json = parseWkt(wktPart);
-    //   } catch (e) {
-    //     let matches;
-    //     let error = "WKT parsing failed";
-    //     matches = e.message.match(/(Unexpected .* at position.*)(?:\sin.*)/);
-    //     if (matches) {
-    //       error = "WKT parsing failed: " + matches[1];
-    //     }
-    //     matches = e.message.match(/(Invalid geometry type.*)/);
-    //     if (matches) {
-    //       error = "WKT parsing failed: " + matches[1];
-    //     }
-    //     setError(error);
-    //   }
-    // }
+    if (input.proj && wktPart !== "") {
+      // try {
+        input.json = parseWkt(wktPart);
+      // }
+      //  catch (e) {
+      //   let matches;
+      //   let error = "WKT parsing failed";
+      //   matches = e.message.match(/(Unexpected .* at position.*)(?:\sin.*)/);
+      //   if (matches) {
+      //     error = "WKT parsing failed: " + matches[1];
+      //   }
+      //   matches = e.message.match(/(Invalid geometry type.*)/);
+      //   if (matches) {
+      //     error = "WKT parsing failed: " + matches[1];
+      //   }
+      //   // setError(error);
+      // }
+    }
 
-    // // update
+    // update
 
-    // setSpatial(input);
+    setSpatial(input);
   }
 
   async function visualize() {

@@ -26,6 +26,7 @@
     "leaflet": "^1.8.0",
     "leaflet-fullscreen": "^1.0.2",
     "leaflet.fullscreen": "^2.4.0",
+    "ol": "^7.1.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-dom": "^18.2.0",
