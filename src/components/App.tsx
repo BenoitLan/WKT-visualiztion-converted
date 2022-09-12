@@ -144,7 +144,7 @@ function App() {
 
   async function handleWtkURIValidate(){
     // const QueryEngine = require('@comunica/query-sparql').QueryEngine; // you can find this back in node_modules
-    const myEngine = new QueryEngine();
+    const myEngine = new QueryEngine(); // finally works :) 
     const quadStream = await myEngine.queryQuads(`
     CONSTRUCT WHERE {
       ?s ?p ?o
@@ -282,31 +282,31 @@ function App() {
     setSpatial(input);
   }
 
-  async function visualize() {
-    // if (map) {
-    //   if (!groupRef.current) {
-    //     const layerGroup = new L.LayerGroup();
-    //     groupRef.current = layerGroup;
-    //     layerGroup.addTo(map);
-    //   }
-    //   groupRef.current.clearLayers();
+  // async function visualize() {
+  //   if (map) {
+  //     if (!groupRef.current) {
+  //       const layerGroup = new L.LayerGroup();
+  //       groupRef.current = layerGroup;
+  //       layerGroup.addTo(map);
+  //     }
+  //     groupRef.current.clearLayers();
 
-    //   if (spatial.json) {
-    //     const conf = {
-    //       pointToLayer: createCircleMarker,
-    //     };
-    //     if (spatial.proj) {
-    //       conf.coordsToLatLng = function(coords) {
-    //         console.log("AAAAAAAAAAAAAAAAAA");
-    //         const newCoords = proj4(spatial.proj, "EPSG:" + DEFAULT_EPSG, [coords[0], coords[1]]);
-    //         return new L.LatLng(newCoords[1], newCoords[0]);
-    //       }
-    //     }
-    //     let newLayer = L.geoJSON(spatial.json, conf).addTo(groupRef.current);
-    //     map.flyToBounds(newLayer.getBounds(), { duration: 0.5, maxZoom: 14 });
-    //   }
-    // }
-  }
+  //     if (spatial.json) {
+  //       const conf = {
+  //         pointToLayer: createCircleMarker,
+  //       };
+  //       if (spatial.proj) {
+  //         conf.coordsToLatLng = function(coords) {
+  //           console.log("AAAAAAAAAAAAAAAAAA");
+  //           const newCoords = proj4(spatial.proj, "EPSG:" + DEFAULT_EPSG, [coords[0], coords[1]]);
+  //           return new L.LatLng(newCoords[1], newCoords[0]);
+  //         }
+  //       }
+  //       let newLayer = L.geoJSON(spatial.json, conf).addTo(groupRef.current);
+  //       map.flyToBounds(newLayer.getBounds(), { duration: 0.5, maxZoom: 14 });
+  //     }
+  //   }
+  // }
 
   // useEffect(() => {
   //   visualize();
