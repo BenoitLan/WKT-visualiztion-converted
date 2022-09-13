@@ -1,5 +1,3 @@
-import { UrlString } from '@inrupt/solid-client'
-import { Session } from '@inrupt/solid-client-authn-browser'
 // import Login from './Login'
 import { useState, useMemo, useEffect, useRef } from "react";
 import L from "leaflet";
@@ -14,18 +12,13 @@ import WKT from "ol/format/WKT.js";
 import GeoJSON from "ol/format/GeoJSON.js";
 import crsList from "./crs.js";
 import { QueryEngine } from '@comunica/query-sparql'
-
-
-// interface IAppProps {
-//   weburl?: UrlString
-//   ses?: Session
-// }
+import "bootstrap/dist/css/bootstrap.min.css";
+import "leaflet/dist/leaflet.css";
 
 const DEFAULT_EPSG = "4326"; // if set to 1111, load example doesn't work anymore, so don't
 const MAX_CHARACTERS = 4000;
 const DEFAULT_WKT_URI = "https://private-api.gipod.beta-vlaanderen.be/api/v1/ldes/mobility-hindrances?generatedAtTime=2020-12-28T09:36:09.72Z";
 // const rdfDereferencer = require("rdf-dereference").default;
-
 
 function createCircleMarker(feature, latlng) {
   let options = {
@@ -48,8 +41,6 @@ function App() {
     wktURI: ""
   });
 
-  
-
   const [valid, setValid] = useState(null);
   const [exampleIndex, setExampleIndex] = useState(0);
 
@@ -64,7 +55,7 @@ function App() {
         zoom={1}
         scrollWheelZoom={true}
         // ref={setMap}>
-        >
+        >     
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -379,6 +370,7 @@ function App() {
 
         <Row>
           <Col lg={true} className="mb-3">
+
             <Form.Group className="mb-3" controlId="wkt">
               <Form.Label>WKT TESTING</Form.Label>
               <Form.Control className="font-monospace" as="textarea" rows={8} value={spatial.wkt} onChange={handleWktChange} />
@@ -403,6 +395,8 @@ function App() {
               error && <Alert variant="danger">{error}</Alert>
             }
           </Col>
+        </Row>
+        <Row>
           <Col lg={true} className="mb-3">
             <Form.Group className="mb-3" controlId="wkt">
                 <Button variant="light" onClick={handleClick}>Advanced options</Button>
@@ -427,6 +421,7 @@ function App() {
                 )}
             </Form.Group>
           </Col>
+        
         </Row>
       </Container>
 

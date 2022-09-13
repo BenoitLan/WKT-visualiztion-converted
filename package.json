@@ -25,6 +25,7 @@
     "@inrupt/vocab-common-rdf": "^1.0.5",
     "babel-loader": "^8.2.5",
     "babel-preset-es2015": "^6.24.1",
+    "bootstrap": "^5.2.1",
     "leaflet": "^1.8.0",
     "leaflet-fullscreen": "^1.0.2",
     "leaflet.fullscreen": "^2.4.0",
