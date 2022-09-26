@@ -29,8 +29,8 @@ function createCircleMarker(feature, latlng) {
 
 function App() {
 
-  const [map, setMap] = useState<HTMLDivElement | null>(null);
-  const [error, setError] = useState(null);
+  const [map, setMap] = useState<any>(null);
+  const [error, setError] = useState<String | null>("");
   const [epsg, setEpsg] = useState("");
   const [wktURI, setWktURI] = useState("");
   const [spatial, setSpatial] = useState({
@@ -41,10 +41,10 @@ function App() {
     wktURI: ""
   });
 
-  const [valid, setValid] = useState(null);
+  const [valid, setValid] = useState<boolean | null>(false);
   const [exampleIndex, setExampleIndex] = useState(0);
 
-  const groupRef = useRef();
+  const groupRef = useRef<any>();
   const epsgCache = useRef(epsgList);
 
   const displayMap = useMemo(
@@ -54,8 +54,7 @@ function App() {
         center={[10, 0]}
         zoom={1}
         scrollWheelZoom={true}
-        // ref={setMap}>
-        >     
+        ref={setMap}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -100,38 +99,15 @@ function App() {
   }
 
   async function handleEpsgValidate() {
-    // console.log(spatial.epsg);
-    // const proj = await fetchProj(spatial.epsg);
-    // if (proj) {
-    //   setValid(proj);
-    // } else {
-    //   setValid(false);
-    // }
+    console.log(spatial.epsg);
+    const proj = await fetchProj(spatial.epsg);
+    if (proj) {
+      setValid(proj);
+    } else {
+      setValid(false);
+    }
   }
 
-  /* This one doesn't work when used locally :(*/
-  // async function handleWtkURIValidate(){ 
-    // window.Buffer = Buffer; // was nessecary to prevent error: "Uncaught (in promise) ReferenceError: Buffer is not defined"
-
-    // window.process = { // to fix the error : "Uncaught (in promise) ReferenceError: process is not defined"
-    //   env: {
-    //       NODE_ENV: 'development'
-    //   }
-    // }    
-    
-    // console.log("spatial.wktURI: " + spatial.wktURI);
-    // const { data } = await rdfDereferencer.dereference('https://private-api.gipod.beta-vlaanderen.be/api/v1/ldes/mobility-hindrances?generatedAtTime=2020-12-28T09:36:09.72Z');
-  //   // data.on('data', (quad) => console.log(quad.object.value));
-  //   data.on('data', function(quad){
-  //       // console.log(quad.predicate.value + "\n\n\n");
-  //       if ((quad.predicate.value.toString()).includes('geosparql')){
-  //           // console.log("\n\n\n"+quad.object.value.toString());
-  //           let out = quad.object.value.toString().replace(/<.+> /,''); // regex to remove the <link>
-  //           console.log(out+'\n');
-  //       }
-  //   });
-  //   console.log("works");
-  // }
 
   async function handleWtkURIValidate(){
     // const QueryEngine = require('@comunica/query-sparql').QueryEngine; // you can find this back in node_modules
@@ -228,7 +204,7 @@ function App() {
       } else if (matches) {
         parsedEpsg = matches[1];
       } else {
-        // setError("CRS URI not supported (only OpenGIS EPSG for now)");
+        setError("CRS URI not supported (only OpenGIS EPSG for now)");
       }
     }
     
@@ -244,28 +220,30 @@ function App() {
 
     input.proj = await fetchProj(input.epsg);
     if (!input.proj) {
-      // setError("EPSG not found");
+      setError("EPSG not found");
     }
 
     // parse WKT
     
     if (input.proj && wktPart !== "") {
-      // try {
+      try {
         input.json = parseWkt(wktPart);
-      // }
-      //  catch (e) {
-      //   let matches;
-      //   let error = "WKT parsing failed";
-      //   matches = e.message.match(/(Unexpected .* at position.*)(?:\sin.*)/);
-      //   if (matches) {
-      //     error = "WKT parsing failed: " + matches[1];
-      //   }
-      //   matches = e.message.match(/(Invalid geometry type.*)/);
-      //   if (matches) {
-      //     error = "WKT parsing failed: " + matches[1];
-      //   }
-      //   // setError(error);
-      // }
+      }
+       catch (e) {
+        if(e instanceof Error){
+          let matches;
+          let error = "WKT parsing failed";
+          matches = e.message.match(/(Unexpected .* at position.*)(?:\sin.*)/);
+          if (matches) {
+            error = "WKT parsing failed: " + matches[1];
+          }
+          matches = e.message.match(/(Invalid geometry type.*)/);
+          if (matches) {
+            error = "WKT parsing failed: " + matches[1];
+          }
+          setError(error);
+        }
+      }
     }
 
     // update
@@ -273,63 +251,62 @@ function App() {
     setSpatial(input);
   }
 
-  // async function visualize() {
-  //   if (map) {
-  //     if (!groupRef.current) {
-  //       const layerGroup = new L.LayerGroup();
-  //       groupRef.current = layerGroup;
-  //       layerGroup.addTo(map);
-  //     }
-  //     groupRef.current.clearLayers();
+  async function visualize() {
+    if (map) {
+      if (!groupRef.current) {
+        const layerGroup = new L.LayerGroup();
+        groupRef.current = layerGroup;
+        layerGroup.addTo(map);
+      }
+      groupRef.current.clearLayers();
 
-  //     if (spatial.json) {
-  //       const conf = {
-  //         pointToLayer: createCircleMarker,
-  //       };
-  //       if (spatial.proj) {
-  //         conf.coordsToLatLng = function(coords) {
-  //           console.log("AAAAAAAAAAAAAAAAAA");
-  //           const newCoords = proj4(spatial.proj, "EPSG:" + DEFAULT_EPSG, [coords[0], coords[1]]);
-  //           return new L.LatLng(newCoords[1], newCoords[0]);
-  //         }
-  //       }
-  //       let newLayer = L.geoJSON(spatial.json, conf).addTo(groupRef.current);
-  //       map.flyToBounds(newLayer.getBounds(), { duration: 0.5, maxZoom: 14 });
-  //     }
-  //   }
-  // }
+      if (spatial.json) {
+        const conf = {
+          pointToLayer: createCircleMarker,
+        };
+        if (spatial.proj) {
+          // conf.coordsToLatLng = function(coords) { 
+          //   const newCoords = proj4(spatial.proj, "EPSG:" + DEFAULT_EPSG, [coords[0], coords[1]]);
+          //   return new L.LatLng(newCoords[1], newCoords[0]);
+          // }
+        }
+        let newLayer = L.geoJSON(spatial.json, conf).addTo(groupRef.current);
+        map.flyToBounds(newLayer.getBounds(), { duration: 0.5, maxZoom: 14 });
+      }
+    }
+  }
 
-  // useEffect(() => {
-  //   visualize();
-  // }, [ spatial ]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    visualize();
+  }, [ spatial ]); // eslint-disable-line react-hooks/exhaustive-deps
   
-  // useEffect(() => {
-  //   setValid(null);
-  //   if (spatial.wkt !== "" || spatial.epsg !== "") {
-  //     const params = new URLSearchParams({wkt: spatial.wkt, epsg: spatial.epsg}).toString();
-  //     if (params.length < MAX_CHARACTERS) {
-  //       window.history.replaceState(null, null, "?" + params);
-  //     } else {
-  //       window.history.replaceState(null, null, "/");
-  //     }
-  //   }
-  // }, [spatial]);
+  useEffect(() => {
+    setValid(null);
+    if (spatial.wkt !== "" || spatial.epsg !== "") {
+      const params = new URLSearchParams({wkt: spatial.wkt, epsg: spatial.epsg}).toString();
+      if (params.length < MAX_CHARACTERS) {
+        window.history.replaceState(null, '', "?" + params);
+      } else {
+        window.history.replaceState(null, '', "/");
+      }
+    }
+  }, [spatial]);
 
-  // useEffect(() => {
-  //   const urlSearchParams = new URLSearchParams(window.location.search);
-  //   const params = Object.fromEntries(urlSearchParams.entries());
-  //   if (Object.keys(params).length === 0) {
-  //     handleLoadExample();
-  //   } else {
-  //     validateAndUpdateSpatial({
-  //       wkt: params.wkt ? params.wkt : "",
-  //       epsg: params.epsg ? params.epsg : DEFAULT_EPSG,
-  //       wktURI: params.wktURI ? params.wktURI : DEFAULT_WKT_URI
-  //     });
-  //     setEpsg(params.epsg ? params.epsg : DEFAULT_EPSG);
-  //     setWktURI(params.wktURI ? params.wktURI : DEFAULT_WKT_URI)
-  //   }
-  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
+    if (Object.keys(params).length === 0) {
+      handleLoadExample();
+    } else {
+      validateAndUpdateSpatial({
+        wkt: params.wkt ? params.wkt : "",
+        epsg: params.epsg ? params.epsg : DEFAULT_EPSG,
+        wktURI: params.wktURI ? params.wktURI : DEFAULT_WKT_URI
+      });
+      setEpsg(params.epsg ? params.epsg : DEFAULT_EPSG);
+      setWktURI(params.wktURI ? params.wktURI : DEFAULT_WKT_URI)
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const optionss = [
     {value:"jack", label:"jack"},
@@ -353,6 +330,7 @@ function App() {
     // 👇️ or simply set it to true
     // setIsShown(true);
   };
+
 
   return (
     <div id="app">
@@ -414,7 +392,6 @@ function App() {
                         </InputGroup>
                       </Form.Group>
                     </Col>
-
                     <Form.Label>Show WKT literals</Form.Label>
                     {/* <Select options={optionss} onChange={HandleChange}/> */}
                   </div>
