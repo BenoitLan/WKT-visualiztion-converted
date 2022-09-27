@@ -14,6 +14,7 @@ import crsList from "./crs.js";
 import { QueryEngine } from '@comunica/query-sparql'
 import "bootstrap/dist/css/bootstrap.min.css";
 import "leaflet/dist/leaflet.css";
+import proj4 from "proj4";
 
 const DEFAULT_EPSG = "4326"; // if set to 1111, load example doesn't work anymore, so don't
 const MAX_CHARACTERS = 4000;
@@ -260,15 +261,16 @@ function App() {
       }
       groupRef.current.clearLayers();
 
+      
       if (spatial.json) {
         const conf = {
           pointToLayer: createCircleMarker,
         };
         if (spatial.proj) {
-          // conf.coordsToLatLng = function(coords) { 
-          //   const newCoords = proj4(spatial.proj, "EPSG:" + DEFAULT_EPSG, [coords[0], coords[1]]);
-          //   return new L.LatLng(newCoords[1], newCoords[0]);
-          // }
+          conf.coordsToLatLng = function(coords) { 
+            const newCoords = proj4(spatial.proj, "EPSG:" + DEFAULT_EPSG, [coords[0], coords[1]]);
+            return new L.LatLng(newCoords[1], newCoords[0]);
+          }
         }
         let newLayer = L.geoJSON(spatial.json, conf).addTo(groupRef.current);
         map.flyToBounds(newLayer.getBounds(), { duration: 0.5, maxZoom: 14 });
