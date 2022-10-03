@@ -16,6 +16,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "leaflet/dist/leaflet.css";
 import proj4 from "proj4";
 
+
+
 const DEFAULT_EPSG = "4326"; // if set to 1111, load example doesn't work anymore, so don't
 const MAX_CHARACTERS = 4000;
 const DEFAULT_WKT_URI = "https://private-api.gipod.beta-vlaanderen.be/api/v1/ldes/mobility-hindrances?generatedAtTime=2020-12-28T09:36:09.72Z";
@@ -266,7 +268,7 @@ function App() {
           pointToLayer: createCircleMarker,
           // coordsToLatLng: (coords: any) => LatLng
           // pointToLayer: (feature: any, latlng: any) => typeof createCircleMarker
-          coordsToLatLng: L.GeoJSON.coordsToLatLng
+          coordsToLatLng: L.GeoJSON.coordsToLatLng // THIS WAS THE PROBLEM OMG
         };
         if (spatial.proj) {
           conf.coordsToLatLng = function(coords) { 
@@ -335,7 +337,8 @@ function App() {
     // setIsShown(true);
   };
 
-
+  
+  
   return (
     <div id="app">
       <Navbar bg="light" expand="lg">
@@ -397,7 +400,11 @@ function App() {
                       </Form.Group>
                     </Col>
                     <Form.Label>Show WKT literals</Form.Label>
-                    {/* <Select options={optionss} onChange={HandleChange}/> */}
+                    <select>
+                      {optionss.map((option) => (
+                        <option value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
                   </div>
                 )}
             </Form.Group>
