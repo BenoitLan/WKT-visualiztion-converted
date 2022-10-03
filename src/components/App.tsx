@@ -1,6 +1,6 @@
 // import Login from './Login'
 import { useState, useMemo, useEffect, useRef } from "react";
-import L from "leaflet";
+import L, { CircleMarker, LatLng } from "leaflet";
 import { Navbar, Container, Button, Form, Row, Col, Alert, InputGroup } from "react-bootstrap";
 import Select from 'react-select';      
 import { MapContainer } from 'react-leaflet/MapContainer';
@@ -248,9 +248,9 @@ function App() {
     }
 
     // update
-
     setSpatial(input);
   }
+
 
   async function visualize() {
     if (map) {
@@ -261,10 +261,12 @@ function App() {
       }
       groupRef.current.clearLayers();
 
-      
       if (spatial.json) {
         const conf = {
           pointToLayer: createCircleMarker,
+          // coordsToLatLng: (coords: any) => LatLng
+          // pointToLayer: (feature: any, latlng: any) => typeof createCircleMarker
+          coordsToLatLng: L.GeoJSON.coordsToLatLng
         };
         if (spatial.proj) {
           conf.coordsToLatLng = function(coords) { 
